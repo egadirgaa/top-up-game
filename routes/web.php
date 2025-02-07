@@ -3,11 +3,16 @@
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\Admin\DashboardAdminController;
 
 Route::get('/', function () {
     return view('welcome', ['title' => 'Welcome']);
 })->name('welcome');
+
+Route::get('/top-up', function () {
+    return view('topup', ['title' => 'Welcome']);
+})->name('topup');
 
 // Middleware 'guest' untuk mencegah user yang sudah login mengakses halaman login & register
 Route::middleware('guest')->group(function () {
@@ -26,3 +31,5 @@ Route::middleware('auth')->group(function () {
 Route::prefix('admin')->middleware(IsAdmin::class)->name('admin.')->group(function () {
     Route::get('dashboard', [DashboardAdminController::class, 'index'])->name('dashboard');
 });
+
+Route::post('/api/create-transaction', [PaymentController::class, 'createTransaction']);
