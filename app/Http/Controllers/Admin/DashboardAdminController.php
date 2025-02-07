@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use App\Models\TopUpTransaction;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\MidtransNotification;
 
@@ -12,36 +12,47 @@ class DashboardAdminController extends Controller
 {
     public function index()
     {
-        // Retrieve transaction summary
+        // Ambil total transaksi
+        $totalTopUp = TopUpTransaction::sum('amount') ?? 0;
+        $totalSuccess = TopUpTransaction::where('status', 'success')->count() ?? 0;
+        $totalFailed = TopUpTransaction::where('status', 'failed')->count() ?? 0;
+
         $transactionSummary = [
-            'totalTopUp' => TopUpTransaction::count(),
-            'totalSuccess' => TopUpTransaction::where('status', 'success')->count(),
-            'totalFailed' => TopUpTransaction::where('status', 'failed')->count()
+            'totalTopUp' => $totalTopUp,
+            'totalSuccess' => $totalSuccess,
+            'totalFailed' => $totalFailed,
         ];
 
-        // Fetch daily transactions for the last 7 days
-        $transactionsPerDay = TopUpTransaction::where('created_at', '>=', Carbon::now()->subDays(7))
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+        // Transaksi per hari (7 hari terakhir)
+        $transactionsPerDay = TopUpTransaction::select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->where('created_at', '>=', Carbon::now()->subDays(7))
             ->groupBy('date')
             ->orderBy('date')
             ->get();
 
-        // Fetch monthly transactions for the last 6 months
-        $transactionsPerMonth = TopUpTransaction::where('created_at', '>=', Carbon::now()->subMonths(6))
-            ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as count')
-            ->groupBy('year', 'month')
+        // Transaksi per bulan (6 bulan terakhir)
+        $transactionsPerMonth = TopUpTransaction::select(
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->where('created_at', '>=', Carbon::now()->subMonths(6))
+            ->groupBy('month', 'year')
             ->orderBy('year')
             ->orderBy('month')
             ->get();
 
-        // Retrieve the latest payment notifications
-        $latestNotifications = MidtransNotification::latest()->take(5)->get();
+        // Ambil 5 notifikasi terbaru
+        $latestNotifications = MidtransNotification::orderBy('created_at', 'desc')->limit(5)->get() ?? collect([]);
 
-        return view('admin.dashboard', [
-            'transactionSummary' => $transactionSummary,
-            'transactionsPerDay' => $transactionsPerDay,
-            'transactionsPerMonth' => $transactionsPerMonth,
-            'latestNotifications' => $latestNotifications
-        ]);
+        return view('admin.dashboard', compact(
+            'transactionSummary',
+            'transactionsPerDay',
+            'transactionsPerMonth',
+            'latestNotifications'
+        ));
     }
 }
