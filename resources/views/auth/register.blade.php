@@ -17,7 +17,7 @@
 <body class="bg-gray-800 flex items-center justify-center min-h-screen relative">
     
     <!-- Background Image -->
-    <img src="{{ asset('img/wallpaper1.png') }}" class="fixed top-0 left-0 w-full h-full object-cover">
+    <img src="{{ asset('img/wallpaper2.jpg') }}" class="fixed top-0 left-0 w-full h-full object-cover">
     
     <div class="absolute inset-0 flex flex-col items-center justify-center px-6">
         <!-- Register Form -->
@@ -58,7 +58,7 @@
         ScrollReveal().reveal('#register-box', {
             duration: 700,
             origin: 'bottom',
-            distance: '50px',
+            distance: '20px',
             easing: 'ease-in-out'
         });
     </script>
