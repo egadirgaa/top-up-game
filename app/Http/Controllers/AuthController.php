@@ -73,7 +73,7 @@ class AuthController extends Controller
             return redirect()->back()->withErrors(['email' => 'Email atau password salah.'])->withInput();
         }
 
-        return redirect()->route('dashboard')->with('success', 'Login berhasil.');
+        return redirect()->intended(Auth::user()->afterLogin())->with('success', 'Login berhasil.');
     }
 
     /**

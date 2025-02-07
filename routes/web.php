@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\DashboardAdminController;
 
 Route::get('/', function () {
     return view('welcome', ['title' => 'Welcome']);
-});
+})->name('welcome');
 
 // Middleware 'guest' untuk mencegah user yang sudah login mengakses halaman login & register
 Route::middleware('guest')->group(function () {
@@ -18,4 +20,9 @@ Route::middleware('guest')->group(function () {
 // Middleware 'auth' untuk memastikan hanya user yang sudah login bisa logout
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+});
+
+// Admin
+Route::prefix('admin')->middleware(IsAdmin::class)->name('admin.')->group(function () {
+    Route::get('dashboard', [DashboardAdminController::class, 'index'])->name('dashboard');
 });

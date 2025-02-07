@@ -52,4 +52,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(TopUpTransaction::class);
     }
+
+    public function afterLogin() {
+        switch ($this->role) {
+            case 'admin':
+                return route('admin.dashboard');  
+            case 'customer':
+                return route('customer.dashboard'); 
+            default:
+                return route('welcome'); 
+        }
+    }
 }
