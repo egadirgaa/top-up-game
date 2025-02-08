@@ -4,9 +4,12 @@
     <title>Top Up Mobile Legends:BANG-BANG bangko</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    {{-- bootstrap --}}
+    {{-- bootstrap & tailwind --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <script src="https://cdn.tailwindcss.com"></script>
+
 
     {{-- css --}}
     <link href="{{ asset('css/welcome.css') }}" rel="stylesheet">
@@ -135,16 +138,16 @@ img.up-down {
   <body>
 
 
-  <header class="navbar justify-content-between navbar-light bd-navbar align-items-baseline">
-    <a class="navbar-brand mr-0 mr-md-2 pos-relative" href="/" aria-label="EVOS Toupup">
-        {{-- logo disini --}}
-    </a>
+      <header class="navbar justify-content-between navbar-light bd-navbar align-items-baseline">
+        <a class="navbar-brand mr-0 mr-md-2 pos-relative" href="/" aria-label="EVOS Toupup">
+            {{-- logo disini --}}
+        </a>
         <a class="btn btn-login mb-0 btn-icon" href="{{ route('showLogin') }}" style="letter-spacing: .5px; padding-left: 22px;">
             Login <img src="{{ asset('img/login.gif') }}" style="width: 20px; right: 18px;opacity: 90%!important; filter: none!important">
         </a>
       </header>
 
-  <div class="main-wrapper">
+  <div class="main-wrapper mt-3">
     @yield('content')
   </div>
 
@@ -158,20 +161,15 @@ img.up-down {
       <li class="navigation no-select link" data-uri="blog"><img src="https://evosfiles.blob.core.windows.net/main-img/ic-write.png"> <span>Blog</span></li>
       <li class="navigation no-select link" data-uri="voucher"><img src="https://evosfiles.blob.core.windows.net/main-img/ic-promo.png"> <span>Voucher</span></li>     
         <li class="no-select mr-1" onclick="if (!window.__cfRLUnblockHandlers) return false; location.href='https://wa.me/6281510475205'" data-cf-modified-8b1ca0bbdc7e2ba214221639-=""><img src="https://evosfiles.blob.core.windows.net/main-img/ic-chat.png"> <span>Chat</span></li>
-          </ul>
+    </ul>
   </nav>
 
   {{-- footer --}}
   <footer class="index-1">
     <div class="row">
       <div class="col-md-4 col-12">
-        <div class="company-wrapper">
+        <div class="">
           <p class="tagline">Ditempat Kami Dijamin Aman Dan Terpercaya!</p>
-          <img src="{{ asset('img/pngegg.png') }}" width="500">
-          <img src="{{ asset('img/pngegg.png') }}" width="500">
-          <img src="{{ asset('img/pngegg.png') }}" width="500">
-          <img src="{{ asset('img/pngegg.png') }}" width="500">
-          <img src="{{ asset('img/pngegg.png') }}" width="500">
           <img src="{{ asset('img/pngegg.png') }}" width="500">
         </div>
       </div>

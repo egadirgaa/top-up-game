@@ -34,7 +34,7 @@ class PaymentController extends Controller
                 'gross_amount' => $transaction->amount,
             ],
             'customer_details' => [
-                'email' => $request->user()->email ?? 'tidak ada detail',
+                'email' => $request->user()->email ?? 'tidak ada email',
             ]
         ];
 
