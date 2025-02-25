@@ -13,8 +13,6 @@ use App\Http\Controllers\Customer\CustomerTopUpController;
 //     return view('welcome', ['title' => 'Welcome']);
 // })->name('welcome');
 
-
-
 // Middleware 'guest' untuk mencegah user yang sudah login mengakses halaman login & register
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('showRegister');
@@ -35,15 +33,15 @@ Route::prefix('admin')->middleware(IsAdmin::class)->name('admin.')->group(functi
 
 
 // ROUTE CHECKOUT MIDTRANS
-Route::get('/', [MidtransController::class, 'checkout'])->name('checkout');
+Route::get('/', [MidtransController::class, 'index']);
+Route::post('/', [MidtransController::class, 'getSnapToken']);
+// // API untuk mendapatkan token baru dari Midtrans
+// Route::post('/midtrans/token', [MidtransController::class, 'getToken'])->name('midtrans.token');
 
-// API untuk mendapatkan token baru dari Midtrans
-Route::post('/midtrans/token', [MidtransController::class, 'getToken'])->name('midtrans.token');
+// // API untuk mengambil token jika transaksi belum selesai ( yg lama )
+// Route::get('/midtrans/token/{transaction_id}', [MidtransController::class, 'getExistingToken'])
+//     ->where('transaction_id', '[A-Za-z0-9\-]+') // Mencegah input aneh
+//     ->name('midtrans.token.existing');
 
-// API untuk mengambil token lama jika transaksi belum selesai
-Route::get('/midtrans/token/{transaction_id}', [MidtransController::class, 'getExistingToken'])
-    ->where('transaction_id', '[A-Za-z0-9\-]+') // Mencegah input aneh
-    ->name('midtrans.token.existing');
-
-    Route::get('/topup', [TopUpController::class, 'index'])->name('topup.index');
-    Route::post('/topup/checkout', [TopUpController::class, 'checkout'])->name('topup.checkout');
+//     Route::get('/topup', [TopUpController::class, 'index'])->name('topup.index');
+//     Route::post('/topup/checkout', [TopUpController::class, 'checkout'])->name('topup.checkout');

@@ -9,44 +9,73 @@ use App\Models\TopUpItem;
 use Illuminate\Http\Request;
 use App\Models\TopUpTransaction;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class MidtransController extends Controller
 {
-    public function checkout()
+    public function index()
     {
         $items = TopUpItem::all();
 
-        return view('checkout', compact('items')); // Menampilkan halaman checkout
+        return view('checkout', compact('items'));
     }
 
-    public function getToken(Request $request)
+    public function __construct()
     {
-        try {
-            \Log::info('Request ke Midtrans:', $request->all()); // Debugging
-        
-            $transaction = [
-                'transaction_details' => [
-                    'order_id' => uniqid(),
-                    'gross_amount' => (int) $request->amount, // Pastikan ini angka
-                ],
-                'customer_details' => [
-                    'first_name' => $request->name,
-                    'email' => $request->email,
-                    'phone' => $request->phone,
-                ]
+        // Konfigurasi Midtrans
+        Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+        Config::$isProduction = false; // Gunakan sandbox mode
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+    }
+
+    public function getSnapToken(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'transaction_id' => 'required|exists:top_up_transactions,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()],  400);
+        }
+
+        $transaction = TopUpTransaction::with('user', 'items')  ->findOrFail($request->transaction_id);
+
+        $items = $transaction->items->map(function ($item) {
+            return [
+                'id' => $item->top_up_item_id,
+                'price' => $item->topUpItem->price,
+                'quantity' => $item->quantity,
+                'name' => $item->topUpItem->name,
             ];
-        
-            $snapToken = \Midtrans\Snap::getSnapToken($transaction);
-            \Log::info('Token Midtrans:', ['snap_token' => $snapToken]); // Debugging
-        
+        })->toArray();
+
+        $payload = [
+            'transaction_details' => [
+                'order_id' => $transaction->id,
+                'gross_amount' => $transaction->amount,
+            ],
+            'customer_details' => [
+                'first_name' => $transaction->user->name,
+                'email' => $transaction->user->email,
+                'phone' => $transaction->user->phone,
+            ],
+            'item_details' => $items,
+        ];
+
+        try {
+            Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+            Config::$isProduction = false; // Ubah ke true jika sudah production
+            Config::$isSanitized = true;
+            Config::$is3ds = true;
+
+            $snapToken = Snap::getSnapToken($payload);
+
             return response()->json(['snap_token' => $snapToken]);
         } catch (\Exception $e) {
-            \Log::error('Midtrans Error:', ['message' => $e->getMessage()]); // Tangkap error
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => $e->getMessage()],  500);
         }
     }
-
-
 
     public function getExistingToken($transaction_id)
     {

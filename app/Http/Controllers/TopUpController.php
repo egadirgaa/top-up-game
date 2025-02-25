@@ -21,17 +21,19 @@ class TopUpController extends Controller
     public function checkout(Request $request)
     {
         $request->validate([
-            'item_id' => 'required|exists:top_up_items,id',
-            'quantity' => 'required|integer|min:1'
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'required|string|max:15',
+            'item_id' => 'required|exists:top_up_items,id'
         ]);
     
-        $user = auth()->user();
+        $user = auth()->user()->id; // Jika user sudah login
         $item = TopUpItem::findOrFail($request->item_id);
-        $totalPrice = $item->price * $request->quantity;
+        $totalPrice = $item->price;
     
-        // Buat transaksi di database
+        // Simpan transaksi ke database
         $transaction = TopUpTransaction::create([
-            'user_id' => $user->id,
+            'user_id' => $user ? $user->id : null,
             'amount' => $totalPrice,
             'status' => 'pending'
         ]);
@@ -45,13 +47,13 @@ class TopUpController extends Controller
         // Data pembayaran Midtrans
         $params = [
             'transaction_details' => [
-                'order_id' => "TOPUP-" . $transaction->id,
+                'order_id' => $transaction->id,
                 'gross_amount' => $totalPrice,
             ],
             'customer_details' => [
-                'first_name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
+                'first_name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
             ]
         ];
     
@@ -61,6 +63,7 @@ class TopUpController extends Controller
         // Simpan Payment URL di transaksi
         $transaction->update(['payment_url' => $snapToken->redirect_url]);
     
-        return response()->json(['payment_url' => $snapToken->redirect_url]);
+        return response()->json(['snap_token' => $snapToken->token]);
     }
+
 }

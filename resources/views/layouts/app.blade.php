@@ -165,13 +165,13 @@ img.up-down {
   </nav>
 
   {{-- footer --}}
-  <footer class="index-1">
+  <footer class="index-1 absolute bot-0 w-full">
     <div class="row">
       <div class="col-md-4 col-12">
-        <div class="">
+        {{-- <div class="">
           <p class="tagline">Ditempat Kami Dijamin Aman Dan Terpercaya!</p>
           <img src="{{ asset('img/pngegg.png') }}" width="500">
-        </div>
+        </div> --}}
       </div>
       <div class="col-md-4 col-12">
         <div class="link-wrapper mt-md-0 mt-3">
